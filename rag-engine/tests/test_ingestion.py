@@ -1,4 +1,4 @@
-"""Tests for app/ingestion/*: loaders, all three chunkers, and dedup."""
+
 from app.ingestion.chunkers.fixed_size import chunk_fixed_size
 from app.ingestion.chunkers.recursive_structure import chunk_recursive_structure
 from app.ingestion.chunkers.semantic import chunk_semantic
@@ -26,7 +26,7 @@ def test_chunk_fixed_size_respects_overlap():
 def test_chunk_recursive_structure_keeps_paragraphs_together():
     text = "Short paragraph one.\n\nShort paragraph two."
     chunks = chunk_recursive_structure(text, max_chunk_size=200, overlap=0)
-    assert len(chunks) == 1  # both paragraphs fit in one chunk
+    assert len(chunks) == 1  
 
 
 def test_chunk_semantic_splits_on_topic_shift():

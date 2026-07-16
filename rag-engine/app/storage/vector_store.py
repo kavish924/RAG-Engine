@@ -93,7 +93,6 @@ class VectorStore:
                 "id": ids[i],
                 "text": documents[i],
                 "metadata": metadatas[i],
-                # Chroma returns cosine *distance*; convert to a similarity score
                 "score": 1 - distances[i] if distances else None,
             })
         return formatted

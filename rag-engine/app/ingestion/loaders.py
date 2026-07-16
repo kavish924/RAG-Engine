@@ -17,9 +17,7 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 
 
-# ------------------------------------------------------
-# Data Model
-# ------------------------------------------------------
+
 
 @dataclass
 class LoadedDocument:
@@ -29,9 +27,7 @@ class LoadedDocument:
     page_number: int | None = None
 
 
-# ------------------------------------------------------
-# Utility Functions
-# ------------------------------------------------------
+
 
 def _clean_whitespace(text: str) -> str:
     """
@@ -42,9 +38,7 @@ def _clean_whitespace(text: str) -> str:
     return text.strip()
 
 
-# ------------------------------------------------------
-# Main Dispatcher
-# ------------------------------------------------------
+
 
 def load_document(file_path: str) -> list[LoadedDocument]:
     """
@@ -68,9 +62,7 @@ def load_document(file_path: str) -> list[LoadedDocument]:
     raise ValueError(f"Unsupported file type: {suffix}")
 
 
-# ------------------------------------------------------
-# Markdown Loader
-# ------------------------------------------------------
+
 
 def load_markdown(file_path: str) -> list[LoadedDocument]:
 
@@ -140,9 +132,7 @@ def load_markdown(file_path: str) -> list[LoadedDocument]:
     return blocks
 
 
-# ------------------------------------------------------
-# Text Loader
-# ------------------------------------------------------
+
 
 def load_text(file_path: str) -> list[LoadedDocument]:
 
@@ -164,9 +154,7 @@ def load_text(file_path: str) -> list[LoadedDocument]:
     ]
 
 
-# ------------------------------------------------------
-# HTML Loader
-# ------------------------------------------------------
+
 
 def load_html(file_path: str) -> list[LoadedDocument]:
 
@@ -236,9 +224,6 @@ def load_html(file_path: str) -> list[LoadedDocument]:
     return blocks
 
 
-# ------------------------------------------------------
-# PDF Loader
-# ------------------------------------------------------
 
 def load_pdf(file_path: str) -> list[LoadedDocument]:
 

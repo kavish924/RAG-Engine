@@ -1,9 +1,8 @@
-"""
-Citation accuracy: of the citations the model produced, what fraction
-were verified as actually supporting their attached claim
-(reuses app.generation.citation_verifier)?
-"""
+
 
 
 def score_citation_accuracy(verified_citations: list[dict]) -> float:
-    raise NotImplementedError
+    if not verified_citations:
+        return 0.0
+    supported = sum(1 for c in verified_citations if c.get("supported"))
+    return supported / len(verified_citations)

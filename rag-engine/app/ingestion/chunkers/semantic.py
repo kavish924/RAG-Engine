@@ -43,7 +43,7 @@ def chunk_semantic(
         return [text]
 
     if embed_fn is None:
-        from app.ingestion.embeddings import embed_texts as embed_fn  # lazy import, avoids hard API dep at import time
+        from app.ingestion.embeddings import embed_texts as embed_fn  
 
     embeddings = embed_fn(sentences)
 

@@ -1,7 +1,0 @@
-{"id": "q001", "question": "What port does the FastAPI service run on by default?", "golden_answer": "8000", "source_docs": ["docs/api.md"], "type": "lookup"}
-{"id": "q002", "question": "How does the system combine dense and sparse retrieval results?", "golden_answer": "Via Reciprocal Rank Fusion (RRF), a weighted combination of dense and sparse rankings.", "source_docs": ["docs/architecture.md"], "type": "lookup"}
-{"id": "q003", "question": "What happens when retrieval confidence is below the threshold?", "golden_answer": "The system returns a structured 'I don't know' response instead of fabricating an answer.", "source_docs": ["docs/architecture.md"], "type": "lookup"}
-{"id": "q004", "question": "Combining the chunking config and the retrieval config, what weight does BM25 get in the default hybrid setup?", "golden_answer": "0.3 (sparse weight in RRF), with chunk size determined by whichever strategy is selected.", "source_docs": ["docs/architecture.md", "docs/chunking.md"], "type": "multi_hop"}
-{"id": "q005", "question": "What is the company's refund policy for enterprise contracts?", "golden_answer": "NOT_IN_CORPUS", "source_docs": [], "type": "no_answer"}
-{"id": "q006", "question": "How fast is it?", "golden_answer": "AMBIGUOUS - depends on which component (retrieval latency, generation latency, ingestion throughput)", "source_docs": [], "type": "ambiguous"}
-# ^ starter rows — expand to 50+ before running the full eval suite

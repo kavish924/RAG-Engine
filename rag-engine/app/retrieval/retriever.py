@@ -1,17 +1,23 @@
 """
 Orchestrates the full hybrid retrieval pipeline:
-  dense_search + bm25_search -> RRF fusion -> rerank -> top-N chunks.
-
-Also supports a "dense_only" mode (skips BM25 + fusion entirely) for the
-dashboard's side-by-side hybrid vs. dense-only comparison.
+    Dense Search
+        ↓
+    BM25 Search
+        ↓
+    Reciprocal Rank Fusion
+        ↓
+    CrossEncoder Reranking
 """
+
 from typing import Literal
+import time
 
 from app.config import settings
 from app.retrieval.dense import dense_search
 from app.retrieval.fusion import reciprocal_rank_fusion
 from app.retrieval.reranker import rerank
 from app.retrieval.sparse_bm25 import bm25_search
+
 
 RetrievalMode = Literal["hybrid", "dense_only"]
 
@@ -23,26 +29,113 @@ def retrieve(
     sparse_top_k: int | None = None,
     rerank_top_n: int | None = None,
 ) -> list[dict]:
-    """
-    Returns the final reranked list of chunks (each with "id", "text",
-    "metadata", "relevance_score", plus fusion-specific fields when mode
-    is "hybrid").
-    """
+
     dense_top_k = dense_top_k or settings.dense_top_k
     sparse_top_k = sparse_top_k or settings.sparse_top_k
     rerank_top_n = rerank_top_n or settings.rerank_top_n
 
-    dense_results = dense_search(query, top_k=dense_top_k)
+    total_start = time.perf_counter()
+
+    # =====================================================
+    # Dense Retrieval
+    # =====================================================
+
+    dense_start = time.perf_counter()
+
+    dense_results = dense_search(
+        query,
+        top_k=dense_top_k,
+    )
+
+    dense_time = time.perf_counter() - dense_start
+
+    print(f"Dense Search          : {dense_time:.3f}s")
+    print(f"Dense Results         : {len(dense_results)}")
+
+    # =====================================================
+    # Dense Only
+    # =====================================================
 
     if mode == "dense_only":
-        candidates = dense_results
-    else:
-        sparse_results = bm25_search(query, top_k=sparse_top_k)
-        candidates = reciprocal_rank_fusion(
+
+        rerank_start = time.perf_counter()
+
+        results = rerank(
+            query,
             dense_results,
-            sparse_results,
-            dense_weight=settings.rrf_dense_weight,
-            sparse_weight=settings.rrf_sparse_weight,
+            keep_top_n=rerank_top_n,
         )
 
-    return rerank(query, candidates, keep_top_n=rerank_top_n)
+        rerank_time = time.perf_counter() - rerank_start
+
+        total_time = time.perf_counter() - total_start
+
+        print(f"CrossEncoder Rerank  : {rerank_time:.3f}s")
+        print(f"TOTAL Retrieval      : {total_time:.3f}s\n")
+
+        return results
+
+    # =====================================================
+    # BM25
+    # =====================================================
+
+    sparse_start = time.perf_counter()
+
+    sparse_results = bm25_search(
+        query,
+        top_k=sparse_top_k,
+    )
+
+    sparse_time = time.perf_counter() - sparse_start
+
+    print(f"BM25 Search          : {sparse_time:.3f}s")
+    print(f"BM25 Results         : {len(sparse_results)}")
+
+    # =====================================================
+    # Fusion
+    # =====================================================
+
+    fusion_start = time.perf_counter()
+
+    candidates = reciprocal_rank_fusion(
+        dense_results,
+        sparse_results,
+        dense_weight=settings.rrf_dense_weight,
+        sparse_weight=settings.rrf_sparse_weight,
+    )
+
+    fusion_time = time.perf_counter() - fusion_start
+
+    print(f"Fusion               : {fusion_time:.3f}s")
+    print(f"Fusion Candidates    : {len(candidates)}")
+
+    # =====================================================
+    # Reranking
+    # =====================================================
+
+    rerank_start = time.perf_counter()
+
+    results = rerank(
+        query,
+        candidates,
+        keep_top_n=rerank_top_n,
+    )
+
+    rerank_time = time.perf_counter() - rerank_start
+
+    # =====================================================
+    # Total
+    # =====================================================
+
+    total_time = time.perf_counter() - total_start
+
+    print("\n========== RETRIEVAL BREAKDOWN ==========")
+    print(f"Dense Search         : {dense_time:.3f}s")
+    print(f"BM25 Search          : {sparse_time:.3f}s")
+    print(f"Fusion               : {fusion_time:.3f}s")
+    print(f"CrossEncoder Rerank  : {rerank_time:.3f}s")
+    print("-----------------------------------------")
+    print(f"TOTAL Retrieval      : {total_time:.3f}s")
+    print("=========================================\n")
+
+    return results

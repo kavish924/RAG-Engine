@@ -55,8 +55,7 @@ def _fallback_recursive_split(text: str, max_chunk_size: int, overlap: int, sepa
 
     chunks = [c.strip() for c in split(text, separators) if c.strip()]
 
-    # apply simple char-overlap by stitching a tail of the previous chunk
-    # onto the front of the next, mirroring LangChain's behavior
+    
     if overlap <= 0 or len(chunks) < 2:
         return chunks
 

@@ -17,7 +17,7 @@ def _cosine_similarity_matrix(candidate: list[float], existing: list[list[float]
     cand_norm = np.linalg.norm(cand)
     exist_norms = np.linalg.norm(exist, axis=1)
     denom = cand_norm * exist_norms
-    denom[denom == 0] = 1e-10  # avoid div-by-zero
+    denom[denom == 0] = 1e-10 
     return (exist @ cand) / denom
 
 
@@ -54,6 +54,6 @@ def filter_duplicates(
             duplicate_indices.append(i)
         else:
             keep_indices.append(i)
-            pool.append(emb)  # so later items in this batch are also checked against it
+            pool.append(emb)  
 
     return keep_indices, duplicate_indices

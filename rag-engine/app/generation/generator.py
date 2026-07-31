@@ -1,14 +1,4 @@
-"""
-Grounded answer generation.
 
-Uses Groq as the LLM provider.
-
-Returns:
-{
-    "answer": "...",
-    "raw_citations": [...]
-}
-"""
 
 import re
 

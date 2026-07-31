@@ -1,18 +1,4 @@
-"""
-Orchestrates the full ingestion flow:
 
-    Load Documents
-            ↓
-    Chunk Documents
-            ↓
-    Generate Embeddings
-            ↓
-    Remove Duplicate Chunks
-            ↓
-    Store in ChromaDB
-            ↓
-    Store in BM25
-"""
 
 import hashlib
 from typing import Literal

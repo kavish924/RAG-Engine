@@ -1,7 +1,4 @@
-"""
-FastAPI entrypoint. Wires up the /v1/ask, /v1/documents, /v1/ingest routes.
-Run with: uvicorn app.main:app --reload
-"""
+
 from fastapi import FastAPI
 
 from app.api.routes import ask, documents, ingest

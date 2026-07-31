@@ -1,8 +1,4 @@
-"""
-Tests for app/retrieval/*.
-Covers: dense/BM25 search return shapes, RRF fusion ordering/weighting,
-reranker top-n truncation, and retriever mode switching (hybrid vs dense_only).
-"""
+
 from unittest.mock import MagicMock, patch
 
 from app.retrieval.fusion import reciprocal_rank_fusion

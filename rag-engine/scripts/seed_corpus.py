@@ -1,10 +1,4 @@
-"""
-Seed script (Phase 5, step 3): indexes scripts/sample_corpus/ so a
-reviewer can `docker-compose up` and immediately test the system without
-sourcing their own documents.
 
-Usage: python scripts/seed_corpus.py [--strategy fixed_size|recursive_structure|semantic]
-"""
 import argparse
 import glob
 

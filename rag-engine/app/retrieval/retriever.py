@@ -1,13 +1,4 @@
-"""
-Orchestrates the full hybrid retrieval pipeline:
-    Dense Search
-        ↓
-    BM25 Search
-        ↓
-    Reciprocal Rank Fusion
-        ↓
-    CrossEncoder Reranking
-"""
+
 
 from typing import Literal
 import time
@@ -36,9 +27,6 @@ def retrieve(
 
     total_start = time.perf_counter()
 
-    # =====================================================
-    # Dense Retrieval
-    # =====================================================
 
     dense_start = time.perf_counter()
 
@@ -52,9 +40,6 @@ def retrieve(
     print(f"Dense Search          : {dense_time:.3f}s")
     print(f"Dense Results         : {len(dense_results)}")
 
-    # =====================================================
-    # Dense Only
-    # =====================================================
 
     if mode == "dense_only":
 
@@ -75,9 +60,6 @@ def retrieve(
 
         return results
 
-    # =====================================================
-    # BM25
-    # =====================================================
 
     sparse_start = time.perf_counter()
 
@@ -91,9 +73,7 @@ def retrieve(
     print(f"BM25 Search          : {sparse_time:.3f}s")
     print(f"BM25 Results         : {len(sparse_results)}")
 
-    # =====================================================
-    # Fusion
-    # =====================================================
+
 
     fusion_start = time.perf_counter()
 
@@ -109,9 +89,7 @@ def retrieve(
     print(f"Fusion               : {fusion_time:.3f}s")
     print(f"Fusion Candidates    : {len(candidates)}")
 
-    # =====================================================
-    # Reranking
-    # =====================================================
+ 
 
     rerank_start = time.perf_counter()
 
@@ -123,9 +101,6 @@ def retrieve(
 
     rerank_time = time.perf_counter() - rerank_start
 
-    # =====================================================
-    # Total
-    # =====================================================
 
     total_time = time.perf_counter() - total_start
 

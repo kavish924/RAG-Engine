@@ -1,8 +1,4 @@
-"""
-Sparse retrieval: run the query through BM25 over the chunk corpus.
-Catches exact keyword matches (function names, config keys, error codes)
-that dense/semantic search can miss.
-"""
+
 from app.storage.bm25_store import BM25Store
 
 _bm25_store: BM25Store | None = None

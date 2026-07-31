@@ -1,13 +1,4 @@
-"""
-BM25 index wrapper, built in parallel with the vector store over the same
-chunks. Both indexes must stay in sync — any chunk written to ChromaDB
-must also be added here (and vice versa on deletion).
 
-rank_bm25 has no native persistence, so this wrapper also supports a
-simple pickle-based save/load for local/dev use. In production you'd
-likely swap this for a proper inverted-index service (e.g. OpenSearch),
-but this keeps the scaffold dependency-light.
-"""
 import pickle
 import re
 from pathlib import Path

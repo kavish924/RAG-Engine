@@ -1,14 +1,4 @@
-"""
-Confidence scoring for RAG responses.
 
-Computes confidence using:
-
-- Retrieval confidence
-- Citation coverage
-- Answer completeness
-
-No additional LLM call is required.
-"""
 
 _RETRIEVAL_WEIGHT = 0.4
 _CITATION_WEIGHT = 0.4

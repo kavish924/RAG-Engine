@@ -1,14 +1,4 @@
-"""
-Multi-format document loader.
 
-Supports:
-- PDF
-- Markdown
-- HTML
-- Plain Text
-
-Returns a list of LoadedDocument objects with metadata.
-"""
 
 import re
 from dataclasses import dataclass

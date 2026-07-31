@@ -1,23 +1,4 @@
-"""
-POST /v1/ask
 
-Runs the complete RAG query pipeline:
-
-    question
-        ↓
-    retrieval
-        ↓
-    grounded generation
-        ↓
-    citation verification
-        ↓
-    confidence scoring
-        ↓
-    structured API response
-
-Each pipeline stage is timed independently so the frontend can
-identify latency bottlenecks.
-"""
 
 import time
 
@@ -54,11 +35,6 @@ from app.retrieval.retriever import (
 router = APIRouter()
 
 
-# ======================================================
-# ASK ENDPOINT
-# ======================================================
-
-
 @router.post(
     "/ask",
     response_model=AskResponse,
@@ -66,20 +42,9 @@ router = APIRouter()
 async def ask(
     request: AskRequest,
 ) -> AskResponse:
-    """
-    Execute the complete RAG pipeline and return
-    a structured answer.
-    """
-
-    # ==================================================
-    # TOTAL PIPELINE TIMER
-    # ==================================================
 
     total_start = time.perf_counter()
 
-    # ==================================================
-    # 1. RETRIEVAL
-    # ==================================================
 
     retrieval_start = time.perf_counter()
 
@@ -94,9 +59,6 @@ async def ask(
         - retrieval_start
     ) * 1000
 
-    # ==================================================
-    # NO RETRIEVAL RESULTS
-    # ==================================================
 
     if not chunks:
 
@@ -129,10 +91,6 @@ async def ask(
             timings=timings,
         )
 
-    # ==================================================
-    # 2. GROUNDED GENERATION
-    # ==================================================
-
     generation_start = time.perf_counter()
 
     generation_result = generate_answer(
@@ -145,9 +103,6 @@ async def ask(
         - generation_start
     ) * 1000
 
-    # ==================================================
-    # 3. CITATION VERIFICATION
-    # ==================================================
 
     verification_start = time.perf_counter()
 
@@ -160,10 +115,6 @@ async def ask(
         time.perf_counter()
         - verification_start
     ) * 1000
-
-    # ==================================================
-    # 4. CONFIDENCE SCORING
-    # ==================================================
 
     confidence_start = time.perf_counter()
 
@@ -178,10 +129,6 @@ async def ask(
         time.perf_counter()
         - confidence_start
     ) * 1000
-
-    # ==================================================
-    # BUILD RETRIEVED CHUNKS
-    # ==================================================
 
     retrieved_chunks = [
         RetrievedChunk(
@@ -212,18 +159,10 @@ async def ask(
         )
     ]
 
-    # ==================================================
-    # TOTAL PIPELINE TIME
-    # ==================================================
-
     total_ms = (
         time.perf_counter()
         - total_start
     ) * 1000
-
-    # ==================================================
-    # PERFORMANCE METRICS
-    # ==================================================
 
     timings = PerformanceMetrics(
         retrieval_ms=round(
@@ -247,11 +186,6 @@ async def ask(
             1,
         ),
     )
-
-    # ==================================================
-    # DEBUG PERFORMANCE LOG
-    # ==================================================
-
     _print_performance_metrics(
         retrieval_ms=retrieval_ms,
         generation_ms=generation_ms,
@@ -259,10 +193,6 @@ async def ask(
         confidence_ms=confidence_ms,
         total_ms=total_ms,
     )
-
-    # ==================================================
-    # LOW CONFIDENCE FALLBACK
-    # ==================================================
 
     if (
         confidence["composite"]
@@ -281,10 +211,6 @@ async def ask(
             chunks=chunks,
             timings=timings,
         )
-
-    # ==================================================
-    # SUCCESS RESPONSE
-    # ==================================================
 
     return AskResponse(
         answer=(
@@ -307,12 +233,6 @@ async def ask(
         is_fallback=False,
     )
 
-
-# ======================================================
-# PERFORMANCE LOGGER
-# ======================================================
-
-
 def _print_performance_metrics(
     retrieval_ms: float,
     generation_ms: float,
@@ -320,11 +240,6 @@ def _print_performance_metrics(
     confidence_ms: float,
     total_ms: float,
 ) -> None:
-    """
-    Print individual RAG pipeline latency metrics
-    to the FastAPI terminal.
-    """
-
     print(
         "\n"
         + "=" * 55
@@ -372,20 +287,9 @@ def _print_performance_metrics(
         + "\n"
     )
 
-
-# ======================================================
-# LOW CONFIDENCE REASON
-# ======================================================
-
-
 def _build_low_confidence_reason(
     confidence: dict,
 ) -> str:
-    """
-    Explain which confidence dimensions caused
-    the answer to fall below the configured
-    confidence threshold.
-    """
 
     weak_points = []
 
@@ -437,12 +341,6 @@ def _build_low_confidence_reason(
         weak_points
     )
 
-
-# ======================================================
-# FALLBACK RESPONSE
-# ======================================================
-
-
 def _fallback_response(
     reason: str,
     retrieved_chunks: list[
@@ -451,17 +349,6 @@ def _fallback_response(
     chunks: list[dict] | None = None,
     timings: PerformanceMetrics | None = None,
 ) -> AskResponse:
-    """
-    Return a graceful structured fallback response.
-
-    The system explains why it cannot confidently
-    answer and suggests potentially relevant
-    documents.
-    """
-
-    # ==================================================
-    # FIND RELEVANT DOCUMENTS
-    # ==================================================
 
     checkable_docs = sorted(
         {
@@ -475,9 +362,6 @@ def _fallback_response(
         }
     )
 
-    # ==================================================
-    # BUILD DOCUMENT HINT
-    # ==================================================
 
     doc_hint = (
         (
@@ -491,10 +375,6 @@ def _fallback_response(
         else ""
     )
 
-    # ==================================================
-    # BUILD FALLBACK ANSWER
-    # ==================================================
-
     answer = (
         "I don't have enough confidence "
         "to answer this reliably — "
@@ -502,9 +382,6 @@ def _fallback_response(
         f"{doc_hint}"
     )
 
-    # ==================================================
-    # DEFAULT TIMINGS
-    # ==================================================
 
     if timings is None:
 
@@ -515,11 +392,6 @@ def _fallback_response(
             confidence_ms=0.0,
             total_ms=0.0,
         )
-
-    # ==================================================
-    # RETURN FALLBACK RESPONSE
-    # ==================================================
-
     return AskResponse(
         answer=answer,
         citations=[],

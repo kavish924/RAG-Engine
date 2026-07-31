@@ -1,10 +1,4 @@
-"""
-Runs the full eval suite (correctness, faithfulness, retrieval relevance,
-citation accuracy) over eval/golden_dataset.jsonl against the current
-pipeline. Intended to run after every pipeline change as a regression test.
 
-Usage: python -m eval.run_eval [--dataset eval/golden_dataset.jsonl] [--out eval/results/latest.json]
-"""
 import argparse
 import json
 from pathlib import Path

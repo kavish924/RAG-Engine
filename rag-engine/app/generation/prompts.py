@@ -1,10 +1,3 @@
-"""
-Grounded generation prompt templates (Phase 3, step 1).
-
-Instructs the LLM to answer only from provided context, cite chunks with
-bracketed references ([1], [2]), and explicitly say when context is
-insufficient rather than guessing.
-"""
 
 
 GROUNDED_SYSTEM_PROMPT = """\

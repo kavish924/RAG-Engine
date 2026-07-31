@@ -1,21 +1,15 @@
-
-
 import json
 import re
-import requests
+
+from groq import Groq
 
 from app.config import settings
-
 
 
 def score_faithfulness(
     answer: str,
     retrieved_chunks: list[dict],
 ) -> float:
-    """
-    Returns a score between 0 and 1 representing how well the generated
-    answer is grounded in the retrieved context.
-    """
 
     claims = _extract_claims(answer)
 
@@ -36,8 +30,6 @@ def score_faithfulness(
         return 0.0
 
     return sum(verdicts) / len(verdicts)
-
-
 
 
 def _extract_claims(answer: str) -> list[str]:
@@ -63,8 +55,6 @@ def _extract_claims(answer: str) -> list[str]:
     ]
 
 
-
-
 def _judge_claims_grounded(
     claims: list[str],
     context: str,
@@ -76,23 +66,22 @@ def _judge_claims_grounded(
     )
 
     prompt = f"""
-Context
+You are evaluating the faithfulness of a Retrieval-Augmented Generation (RAG) system.
 
+Context:
 {context}
 
-Claims
-
+Claims:
 {numbered_claims}
 
-For every numbered claim determine whether it is directly supported by
-the supplied context.
+For each numbered claim, determine whether it is directly supported by the supplied context.
 
-Use ONLY the supplied context.
-
-Return ONLY a JSON array of booleans.
+Rules:
+- Use ONLY the supplied context.
+- Do not use outside knowledge.
+- Return ONLY a JSON array of booleans.
 
 Example:
-
 [true,false,true]
 """
 
@@ -104,57 +93,28 @@ Example:
     )
 
 
-
 def _call_llm(prompt: str) -> str:
 
     provider = settings.llm_provider.lower()
 
-    if provider == "ollama":
-        return _call_ollama(prompt)
+    if provider == "groq":
+        return _call_groq(prompt)
 
-    elif provider == "anthropic":
-        return _call_anthropic(prompt)
-
-    elif provider == "openai":
+    if provider == "openai":
         return _call_openai(prompt)
 
-    raise ValueError(provider)
+    raise ValueError(f"Unsupported provider: {provider}")
 
 
+def _call_groq(prompt: str) -> str:
 
-def _call_ollama(prompt: str) -> str:
-
-    response = requests.post(
-        f"{settings.ollama_base_url}/api/chat",
-        json={
-            "model": settings.ollama_model,
-            "messages": [
-                {
-                    "role": "user",
-                    "content": prompt,
-                }
-            ],
-            "stream": False,
-        },
-        timeout=300,
+    client = Groq(
+        api_key=settings.groq_api_key,
     )
 
-    response.raise_for_status()
-
-    return response.json()["message"]["content"]
-
-
-
-def _call_anthropic(prompt: str) -> str:
-
-    from anthropic import Anthropic
-
-    client = Anthropic(
-        api_key=settings.anthropic_api_key,
-    )
-
-    response = client.messages.create(
+    response = client.chat.completions.create(
         model=settings.generation_model,
+        temperature=0,
         max_tokens=512,
         messages=[
             {
@@ -164,9 +124,7 @@ def _call_anthropic(prompt: str) -> str:
         ],
     )
 
-    return response.content[0].text
-
-
+    return response.choices[0].message.content.strip()
 
 
 def _call_openai(prompt: str) -> str:
@@ -179,6 +137,7 @@ def _call_openai(prompt: str) -> str:
 
     response = client.chat.completions.create(
         model=settings.generation_model,
+        temperature=0,
         max_tokens=512,
         messages=[
             {
@@ -188,9 +147,7 @@ def _call_openai(prompt: str) -> str:
         ],
     )
 
-    return response.choices[0].message.content
-
-
+    return response.choices[0].message.content.strip()
 
 
 def _parse_boolean_array(
@@ -215,7 +172,6 @@ def _parse_boolean_array(
         return [False] * expected_len
 
     if len(verdicts) != expected_len:
-
         verdicts = (
             verdicts
             + [False] * expected_len

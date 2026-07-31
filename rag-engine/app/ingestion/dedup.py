@@ -1,11 +1,4 @@
-"""
-Near-duplicate detection (Phase 1, step 4).
 
-Before inserting a chunk, check cosine similarity against existing chunk
-embeddings already in the store. If similarity > threshold (default
-0.95), flag and skip — prevents the retriever from wasting context
-window slots on redundant content that appears in multiple docs.
-"""
 import numpy as np
 
 
@@ -38,12 +31,6 @@ def filter_duplicates(
     existing_embeddings: list[list[float]] | None = None,
     threshold: float = 0.95,
 ) -> tuple[list[int], list[int]]:
-    """
-    Filters a batch of new candidate embeddings against both an existing
-    pool and each other (in case the same batch contains internal dupes).
-
-    Returns (keep_indices, duplicate_indices) into `candidate_embeddings`.
-    """
     existing_embeddings = list(existing_embeddings or [])
     keep_indices: list[int] = []
     duplicate_indices: list[int] = []

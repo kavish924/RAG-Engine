@@ -1,13 +1,4 @@
-"""
-Ingestion package.
 
-Provides utilities for:
-- Loading documents
-- Chunking text
-- Generating embeddings
-- Deduplicating chunks
-- Running the ingestion pipeline
-"""
 
 from .loaders import LoadedDocument, load_document
 from .embeddings import embed_query, embed_texts

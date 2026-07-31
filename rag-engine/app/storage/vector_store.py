@@ -1,14 +1,3 @@
-"""
-Thin wrapper around ChromaDB: collection setup, upsert, and query,
-storing metadata (source document, chunk index, section heading,
-chunking strategy, character count) alongside each embedding.
-
-Uses a local persistent client by default (good for the seed script /
-local dev); point CHROMA_HOST/PORT at a running server in docker-compose
-for the containerized setup by using `use_http=True`.
-"""
-
-
 class VectorStore:
     def __init__(
         self,
@@ -31,11 +20,6 @@ class VectorStore:
         )
 
     def upsert_chunks(self, chunks: list[dict]) -> None:
-        """
-        Each chunk dict must have: id, text, embedding, and a metadata
-        dict with source_document, chunk_index, section_heading (optional),
-        chunking_strategy, character_count.
-        """
         if not chunks:
             return
 
@@ -59,7 +43,6 @@ class VectorStore:
         return [list(e) for e in embeddings]
 
     def list_documents(self) -> list[dict]:
-        """Groups stored chunks by source_document for GET /v1/documents."""
         data = self.collection.get(include=["metadatas"])
         summary: dict[str, dict] = {}
         for meta in data.get("metadatas", []):
@@ -73,7 +56,6 @@ class VectorStore:
 
     @staticmethod
     def _sanitize_metadata(metadata: dict) -> dict:
-        """Chroma metadata values must be str/int/float/bool — coerce anything else."""
         clean = {}
         for k, v in metadata.items():
             if v is None:

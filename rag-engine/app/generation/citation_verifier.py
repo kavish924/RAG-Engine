@@ -22,35 +22,6 @@ def verify_citations(
     raw_citations: list[dict],
     chunks: list[dict],
 ) -> list[dict]:
-    """
-    Verify every generated citation against its referenced chunk.
-
-    Expected raw citation format:
-
-        {
-            "marker": "[1]",
-            "excerpt": "Docker is a containerization platform"
-        }
-
-    Returns:
-
-        {
-            "marker": "[1]",
-            "chunk_id": "...",
-            "source_document": "...",
-            "section_heading": "...",
-            "supported": True,
-            "excerpt": "..."
-        }
-
-    Citation markers are mapped to retrieved chunks by their
-    1-indexed position:
-
-        [1] -> chunks[0]
-        [2] -> chunks[1]
-        [3] -> chunks[2]
-    """
-
     if not raw_citations:
         return []
 
@@ -134,15 +105,6 @@ def verify_citations(
 
 
 def _extract_chunk_index(marker: str) -> int | None:
-    """
-    Convert a citation marker into a zero-based chunk index.
-
-    Examples:
-
-        [1] -> 0
-        [2] -> 1
-        [5] -> 4
-    """
 
     match = re.fullmatch(
         r"\[(\d+)\]",
@@ -164,17 +126,6 @@ def _is_excerpt_supported(
     excerpt: str,
     chunk_text: str,
 ) -> bool:
-    """
-    Determine whether a citation excerpt is supported by the
-    referenced source chunk.
-
-    Uses:
-
-    1. Exact normalized substring matching
-    2. Token overlap scoring
-
-    No LLM call is required.
-    """
 
     if not excerpt:
         return False
@@ -191,17 +142,9 @@ def _is_excerpt_supported(
 
     if not normalized_chunk:
         return False
-
-    # --------------------------------------------------
-    # Strategy 1: Exact normalized substring
-    # --------------------------------------------------
-
+    
     if normalized_excerpt in normalized_chunk:
         return True
-
-    # --------------------------------------------------
-    # Strategy 2: Token overlap
-    # --------------------------------------------------
 
     excerpt_tokens = set(
         _tokenize(normalized_excerpt)
@@ -228,15 +171,6 @@ def _is_excerpt_supported(
 
 
 def _normalize_text(text: str) -> str:
-    """
-    Normalize text before citation comparison.
-
-    Example:
-
-        "Docker is a Platform."
-                ↓
-        "docker is a platform"
-    """
 
     text = text.lower()
 
@@ -256,12 +190,7 @@ def _normalize_text(text: str) -> str:
 
 
 def _tokenize(text: str) -> list[str]:
-    """
-    Tokenize normalized text.
 
-    Very common stop words are removed to prevent meaningless
-    token overlap from inflating citation support scores.
-    """
 
     stop_words = {
         "a",
@@ -304,10 +233,6 @@ def _build_invalid_citation(
     marker: str,
     excerpt: str,
 ) -> dict:
-    """
-    Build a structured unsupported citation response for invalid
-    or out-of-range citation markers.
-    """
 
     return {
         "marker": marker,

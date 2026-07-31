@@ -1,9 +1,4 @@
-"""
-Tests for app/api/routes/*.
-Covers /health plus the /v1/ask, /v1/documents, /v1/ingest contracts,
-using FastAPI's TestClient with the underlying pipeline mocked out so
-these tests don't hit a real LLM, embedding API, or vector store.
-"""
+
 from unittest.mock import patch
 
 from fastapi.testclient import TestClient

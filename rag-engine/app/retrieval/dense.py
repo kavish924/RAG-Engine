@@ -1,7 +1,4 @@
-"""
-Dense retrieval: embed the query, search ChromaDB, return top-k chunks
-ranked by cosine similarity.
-"""
+
 from app.config import settings
 from app.ingestion.embeddings import embed_query
 from app.storage.vector_store import VectorStore

@@ -1,7 +1,4 @@
-"""
-Embedding wrapper supporting both local Sentence Transformers
-and OpenAI embeddings.
-"""
+
 
 from functools import lru_cache
 

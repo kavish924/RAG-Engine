@@ -1,6 +1,3 @@
-
-
-
 def score_citation_accuracy(verified_citations: list[dict]) -> float:
     if not verified_citations:
         return 0.0

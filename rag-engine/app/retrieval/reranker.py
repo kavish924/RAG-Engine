@@ -1,14 +1,3 @@
-"""
-Cross-Encoder reranker.
-
-Instead of using an LLM API, this uses a local SentenceTransformer
-CrossEncoder model to rerank retrieved chunks.
-
-Model:
-cross-encoder/ms-marco-MiniLM-L-6-v2
-
-Returns relevance scores and keeps the top N chunks.
-"""
 
 from sentence_transformers import CrossEncoder
 import time
@@ -50,10 +39,6 @@ def rerank(
         (query, candidate["text"])
         for candidate in candidates
     ]
-
-    # ---------------------------------------
-    # Measure CrossEncoder inference time
-    # ---------------------------------------
     start = time.perf_counter()
 
     scores = model.predict(sentence_pairs)

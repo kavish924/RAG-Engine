@@ -1,9 +1,4 @@
-"""
-Tests for app/generation/*.
-Covers: prompt construction (build_context_blocks), citation parsing out
-of a generated answer, citation_verifier flags unsupported claims, and
-confidence scoring math/weighting.
-"""
+
 from unittest.mock import patch
 
 from app.generation.confidence_scorer import score_confidence

@@ -1,11 +1,4 @@
-"""
-Query dashboard (Phase 5, step 2).
-Lets the user ask a question and see:
-  - the generated answer with citations
-  - retrieved chunks ranked by relevance
-  - confidence scores broken down by dimension
-  - a toggle to compare hybrid vs. dense-only retrieval side by side
-"""
+
 import os
 
 import pandas as pd
@@ -109,9 +102,6 @@ def render_answer_column(result: dict, label: str):
 
     st.subheader(label)
 
-    # --------------------------------------------------
-# Performance Metrics
-# --------------------------------------------------
 
     timings = result.get("timings") or {}
 
@@ -360,7 +350,6 @@ def render_answer_column(result: dict, label: str):
         
 
 
-# --- Main UI ---
 
 question = st.text_input("Ask a question about the indexed documents")
 compare = st.checkbox("Compare hybrid vs. dense-only side by side")

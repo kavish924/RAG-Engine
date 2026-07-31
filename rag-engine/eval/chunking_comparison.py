@@ -1,15 +1,4 @@
-"""
-Runs the full eval suite across all three chunking strategies
-(fixed_size, recursive_structure, semantic) and generates a comparison
-report showing which strategy wins on which metric. This data drives
-the architecture decisions and gives concrete numbers for interviews.
 
-Usage: python -m eval.chunking_comparison [--corpus-dir scripts/sample_corpus] [--dataset eval/golden_dataset.jsonl]
-
-Note: this re-ingests your corpus three times (once per strategy) into
-three SEPARATE vector/BM25 stores, so it doesn't touch or pollute your
-main ./chroma_data index. Each run is fully isolated.
-"""
 import argparse
 import glob
 import json
@@ -90,14 +79,6 @@ def compare_chunking_strategies(
     corpus_dir: str = "scripts/sample_corpus",
     dataset_path: str = "eval/golden_dataset.jsonl",
 ) -> dict:
-    """
-    Returns: {
-      "fixed_size":          {"correctness": .., "faithfulness": .., "retrieval_relevance": .., "citation_accuracy": ..},
-      "recursive_structure": {...},
-      "semantic":            {...},
-      "winner_by_metric":    {"correctness": "recursive_structure", ...},
-    }
-    """
     corpus_files = _get_corpus_files(corpus_dir)
     if not corpus_files:
         raise ValueError(f"No documents found in {corpus_dir}. Add sample documents first.")

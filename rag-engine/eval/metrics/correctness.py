@@ -1,10 +1,20 @@
+"""
+LLM-based correctness metric.
+
+Uses Groq to compare the generated answer against the golden answer.
+
+Returns a normalized score between 0.0 and 1.0.
+"""
 
 import re
-import requests
+
+from groq import Groq
 
 from app.config import settings
 
 
+# Create the client once
+client = Groq(api_key=settings.groq_api_key)
 
 
 def score_correctness(
@@ -27,8 +37,6 @@ def score_correctness(
         golden_answer,
         question,
     )
-
-
 
 
 def _score_standard_correctness(
@@ -66,7 +74,6 @@ Reply ONLY with a single number between 0 and 10.
     return max(0.0, min(score / 10.0, 1.0))
 
 
-
 def _score_refusal_correctness(
     generated_answer: str,
 ) -> float:
@@ -89,7 +96,6 @@ no
     response = _call_llm(prompt).strip().lower()
 
     return 1.0 if response.startswith("yes") else 0.0
-
 
 
 def _score_ambiguous_handling(
@@ -122,93 +128,31 @@ no
     return 1.0 if response.startswith("yes") else 0.0
 
 
-
-
 def _call_llm(prompt: str) -> str:
 
     provider = settings.llm_provider.lower()
 
-    if provider == "ollama":
-        return _call_ollama(prompt)
+    if provider != "groq":
+        raise ValueError(f"Unsupported provider: {provider}")
 
-    if provider == "openai":
-        return _call_openai(prompt)
-
-    if provider == "anthropic":
-        return _call_anthropic(prompt)
-
-    raise ValueError(f"Unsupported provider: {provider}")
+    return _call_groq(prompt)
 
 
-
-def _call_ollama(prompt: str) -> str:
-
-    response = requests.post(
-        f"{settings.ollama_base_url}/api/chat",
-        json={
-            "model": settings.ollama_model,
-            "messages": [
-                {
-                    "role": "user",
-                    "content": prompt,
-                }
-            ],
-            "stream": False,
-        },
-        timeout=300,
-    )
-
-    response.raise_for_status()
-
-    return response.json()["message"]["content"]
-
-
-
-def _call_openai(prompt: str) -> str:
-
-    from openai import OpenAI
-
-    client = OpenAI(
-        api_key=settings.openai_api_key,
-    )
+def _call_groq(prompt: str) -> str:
 
     response = client.chat.completions.create(
         model=settings.generation_model,
-        max_tokens=20,
         messages=[
             {
                 "role": "user",
                 "content": prompt,
             }
         ],
-    )
-
-    return response.choices[0].message.content
-
-
-
-def _call_anthropic(prompt: str) -> str:
-
-    from anthropic import Anthropic
-
-    client = Anthropic(
-        api_key=settings.anthropic_api_key,
-    )
-
-    response = client.messages.create(
-        model=settings.generation_model,
+        temperature=0.0,
         max_tokens=20,
-        messages=[
-            {
-                "role": "user",
-                "content": prompt,
-            }
-        ],
     )
 
-    return response.content[0].text
-
-
+    return response.choices[0].message.content.strip()
 
 
 def _parse_single_score(raw_response: str) -> float:

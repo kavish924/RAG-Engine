@@ -1,11 +1,7 @@
 """
 Grounded answer generation.
 
-Supports multiple providers:
-
-- Ollama (recommended)
-- Anthropic
-- OpenAI
+Uses Groq as the LLM provider.
 
 Returns:
 {
@@ -15,7 +11,8 @@ Returns:
 """
 
 import re
-import requests
+
+from groq import Groq
 
 from app.config import settings
 from app.generation.prompts import build_grounded_prompt
@@ -25,7 +22,6 @@ _CITATION_MARKER_RE = re.compile(r"\[(\d+(?:\s*,\s*\d+)*)\]")
 
 
 def generate_answer(question: str, chunks: list[dict]) -> dict:
-
     if not chunks:
         return {
             "answer": "I don't have enough information to answer this question.",
@@ -53,107 +49,27 @@ def generate_answer(question: str, chunks: list[dict]) -> dict:
     print("=" * 60 + "\n")
 
     return {
-    "answer": answer,
-    "raw_citations": citations,
+        "answer": answer,
+        "raw_citations": citations,
     }
 
 
-
-
 def _call_llm(system_prompt: str, question: str) -> str:
-
     provider = settings.llm_provider.lower()
 
-    if provider == "ollama":
-        return _call_ollama(system_prompt, question)
+    if provider == "groq":
+        return _call_groq(system_prompt, question)
 
-    elif provider == "anthropic":
-        return _call_anthropic(system_prompt, question)
-
-    elif provider == "openai":
-        return _call_openai(system_prompt, question)
-
-    else:
-        raise ValueError(f"Unknown provider: {provider}")
+    raise ValueError(f"Unknown provider: {provider}")
 
 
-
-
-def _call_ollama(
-    system_prompt: str,
-    question: str,
-) -> str:
-    import requests
-
-    response = requests.post(
-        f"{settings.ollama_base_url}/api/chat",
-        json={
-            "model": settings.ollama_model,
-            "messages": [
-                {
-                    "role": "system",
-                    "content": system_prompt,
-                },
-                {
-                    "role": "user",
-                    "content": question,
-                },
-            ],
-            "stream": False,
-            "keep_alive": "30m",
-            "options": {
-                "num_predict": 256,
-                "temperature": 0.1,
-                "num_ctx": 4096,
-            },
-        },
-        timeout=300,
-    )
-
-    response.raise_for_status()
-
-    data = response.json()
-
-    return data["message"]["content"]
-
-
-
-
-def _call_anthropic(system_prompt: str, question: str) -> str:
-
-    from anthropic import Anthropic
-
-    client = Anthropic(
-        api_key=settings.anthropic_api_key,
-    )
-
-    response = client.messages.create(
-        model=settings.generation_model,
-        max_tokens=1024,
-        system=system_prompt,
-        messages=[
-            {
-                "role": "user",
-                "content": question,
-            }
-        ],
-    )
-
-    return response.content[0].text.strip()
-
-
-
-def _call_openai(system_prompt: str, question: str) -> str:
-
-    from openai import OpenAI
-
-    client = OpenAI(
-        api_key=settings.openai_api_key,
+def _call_groq(system_prompt: str, question: str) -> str:
+    client = Groq(
+        api_key=settings.groq_api_key,
     )
 
     response = client.chat.completions.create(
         model=settings.generation_model,
-        max_tokens=1024,
         messages=[
             {
                 "role": "system",
@@ -164,10 +80,11 @@ def _call_openai(system_prompt: str, question: str) -> str:
                 "content": question,
             },
         ],
+        temperature=0.1,
+        max_tokens=1024,
     )
 
     return response.choices[0].message.content.strip()
-
 
 
 def _parse_citations(answer_text: str, chunks: list[dict]) -> list[dict]:
@@ -179,38 +96,39 @@ def _parse_citations(answer_text: str, chunks: list[dict]) -> list[dict]:
         for match in _CITATION_MARKER_RE.finditer(sentence):
 
             indices = [
-            int(x.strip())
-            for x in match.group(1).split(",")
-        ]
+                int(x.strip())
+                for x in match.group(1).split(",")
+            ]
 
-        for idx in indices:
+            for idx in indices:
 
-            if idx < 1 or idx > len(chunks):
-                continue
+                if idx < 1 or idx > len(chunks):
+                    continue
 
-            claim = chunks[idx - 1]["text"][:250]
+                claim = chunks[idx - 1]["text"][:250]
 
-            key = (idx, claim)
+                key = (idx, claim)
 
-            if key in seen:
-                continue
+                if key in seen:
+                    continue
 
-            seen.add(key)
+                seen.add(key)
 
-            citations.append(
-                {
-                    "marker": f"[{idx}]",
-                    "excerpt": claim,
-                    "chunk_index": idx,
-                    "chunk": chunks[idx - 1],
-                }
-            )
-            print("\n========== PARSED CITATIONS ==========")
+                citations.append(
+                    {
+                        "marker": f"[{idx}]",
+                        "excerpt": claim,
+                        "chunk_index": idx,
+                        "chunk": chunks[idx - 1],
+                    }
+                )
 
-        for c in citations:
-            print(f"Marker : {c['marker']}")
-            print(f"Excerpt: {c['excerpt']}")
-            print("-" * 40)
+    print("\n========== PARSED CITATIONS ==========")
+
+    for c in citations:
+        print(f"Marker : {c['marker']}")
+        print(f"Excerpt: {c['excerpt']}")
+        print("-" * 40)
 
     print("=====================================\n")
 
@@ -218,7 +136,6 @@ def _parse_citations(answer_text: str, chunks: list[dict]) -> list[dict]:
 
 
 def _split_into_sentences(text: str):
-
     return [
         s.strip()
         for s in re.split(

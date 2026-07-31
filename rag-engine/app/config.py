@@ -5,28 +5,31 @@ All configuration is loaded from environment variables (.env).
 
 This project supports:
 - Local or OpenAI embeddings
-- Anthropic, OpenAI or Ollama for generation
+- Groq for LLM generation
 """
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Literal
 
-class Settings(BaseSettings):
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
+
+class Settings(BaseSettings):
     # ==========================================================
     # LLM Configuration
     # ==========================================================
 
-    llm_provider: Literal["anthropic", "openai", "ollama"] = "anthropic"
+    llm_provider: Literal["groq"] = "groq"
 
-    generation_model: str = "claude-sonnet-4-6"
+    groq_api_key: str = Field(
+        default="",
+        alias="GROQ_API_KEY",
+    )
 
-    openai_api_key: str = ""
-    anthropic_api_key: str = ""
-
-    # Ollama
-    ollama_base_url: str = "http://localhost:11434"
-    ollama_model: str = "llama3.2"
+    generation_model: str = Field(
+        default="llama-3.1-8b-instant",
+        alias="GENERATION_MODEL",
+    )
 
     # ==========================================================
     # Embedding Configuration
@@ -37,11 +40,17 @@ class Settings(BaseSettings):
     # Local embedding model
     embedding_model: str = "BAAI/bge-small-en-v1.5"
 
-    # OpenAI embedding model
+    # OpenAI embedding model (used only if embedding_provider="openai")
     openai_embedding_model: str = "text-embedding-3-small"
 
+    # Optional OpenAI API key (only required for OpenAI embeddings)
+    openai_api_key: str = Field(
+        default="",
+        alias="OPENAI_API_KEY",
+    )
+
     # ==========================================================
-    # ChromaDB
+    # ChromaDB Configuration
     # ==========================================================
 
     chroma_host: str = "localhost"
@@ -49,7 +58,7 @@ class Settings(BaseSettings):
     chroma_collection: str = "rag_chunks"
 
     # ==========================================================
-    # Retrieval Settings
+    # Retrieval Configuration
     # ==========================================================
 
     dense_top_k: int = 10
@@ -61,13 +70,13 @@ class Settings(BaseSettings):
     rerank_top_n: int = 5
 
     # ==========================================================
-    # Confidence Settings
+    # Confidence Configuration
     # ==========================================================
 
     confidence_threshold: float = 0.45
 
     # ==========================================================
-    # API Settings
+    # FastAPI Configuration
     # ==========================================================
 
     api_host: str = "0.0.0.0"
@@ -79,6 +88,7 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(
         env_file=".env",
+        env_file_encoding="utf-8",
         extra="ignore",
     )
 

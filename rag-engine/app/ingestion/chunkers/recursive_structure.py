@@ -1,15 +1,3 @@
-"""
-Structure-aware chunking: recursively splits on a priority list of
-separators (section breaks -> paragraphs -> sentences -> words), only
-falling through to a finer-grained separator when a piece is still too
-large. This keeps semantically related text (e.g. a full paragraph)
-together whenever it fits, unlike naive fixed-size windows.
-
-Thin wrapper around LangChain's RecursiveCharacterTextSplitter so we get
-a well-tested implementation, with a fallback pure-Python version if the
-dependency isn't installed.
-"""
-
 
 def chunk_recursive_structure(text: str, max_chunk_size: int = 800, overlap: int = 100) -> list[str]:
     text = text.strip()

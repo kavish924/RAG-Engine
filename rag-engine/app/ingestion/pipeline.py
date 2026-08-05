@@ -33,19 +33,6 @@ def _chunk_id(
     index: int,
     text: str,
 ) -> str:
-    """
-    Generate a stable unique ID.
-
-    Uses:
-        filename
-        chunk strategy
-        chunk index
-        SHA1(text)
-
-    Example:
-
-    docker.md-recursive_structure-3-5d82c18a21b7f1a3
-    """
 
     filename = source_file.replace("\\", "/").split("/")[-1]
 

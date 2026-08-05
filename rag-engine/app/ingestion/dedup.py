@@ -1,6 +1,4 @@
-
 import numpy as np
-
 
 def _cosine_similarity_matrix(candidate: list[float], existing: list[list[float]]) -> np.ndarray:
     if not existing:

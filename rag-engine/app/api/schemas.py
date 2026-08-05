@@ -1,7 +1,4 @@
-
-
 from typing import Literal, Optional
-
 from pydantic import BaseModel, Field
 class AskRequest(BaseModel):
 
@@ -38,10 +35,6 @@ class Citation(BaseModel):
     excerpt: str
 
 class ConfidenceBreakdown(BaseModel):
-    """
-    Confidence scores calculated for the generated answer.
-    """
-
     retrieval_confidence: float
 
     citation_coverage: float

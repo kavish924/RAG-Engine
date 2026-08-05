@@ -1,12 +1,3 @@
-"""
-Semantic chunking: splits text into sentences, embeds each sentence, and
-cuts a new chunk boundary wherever the cosine similarity between
-consecutive sentences drops below `similarity_threshold` (i.e. where the
-topic actually shifts) rather than at an arbitrary character count.
-
-`embed_fn` is injectable so this can be unit-tested without calling a
-real embedding API; it defaults to the project's embeddings wrapper.
-"""
 import re
 from typing import Callable
 

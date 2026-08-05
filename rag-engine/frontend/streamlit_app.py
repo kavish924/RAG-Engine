@@ -12,16 +12,6 @@ st.title("RAG Engine — Query Dashboard")
 
 
 def get_filename(path: str) -> str:
-    """
-    Extract only the filename from Windows or Linux-style paths.
-
-    Examples:
-        scripts\\sample_corpus\\pdf1\\Kubernetes.pdf
-        -> Kubernetes.pdf
-
-        scripts/sample_corpus/pdf1/Kubernetes.pdf
-        -> Kubernetes.pdf
-    """
     if not path:
         return "unknown"
 
@@ -77,11 +67,6 @@ def call_ask_api(
     return None
 
 def format_latency(value) -> str:
-    """
-    Format latency stored in milliseconds.
-
-    Handles None safely.
-    """
     if value is None:
         return "N/A"
 
@@ -347,10 +332,6 @@ def render_answer_column(result: dict, label: str):
             st.caption(
                 f"Chunk ID: {chunk['chunk_id']}"
             )
-        
-
-
-
 question = st.text_input("Ask a question about the indexed documents")
 compare = st.checkbox("Compare hybrid vs. dense-only side by side")
 
@@ -377,8 +358,6 @@ elif ask_clicked and question:
         with st.spinner("Retrieving and generating..."):
             result = call_ask_api(question, mode)
         render_answer_column(result, f"Answer ({mode})")
-
-
 
 with st.sidebar:
     st.header("Indexed Documents")

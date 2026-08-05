@@ -7,8 +7,6 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 
 
-
-
 @dataclass
 class LoadedDocument:
     source_file: str
@@ -16,19 +14,10 @@ class LoadedDocument:
     section_heading: str | None = None
     page_number: int | None = None
 
-
-
-
 def _clean_whitespace(text: str) -> str:
-    """
-    Normalize whitespace.
-    """
     text = re.sub(r"[ \t]+", " ", text)
     text = re.sub(r"\n{3,}", "\n\n", text)
     return text.strip()
-
-
-
 
 def load_document(file_path: str) -> list[LoadedDocument]:
     """
@@ -50,9 +39,6 @@ def load_document(file_path: str) -> list[LoadedDocument]:
         return load_pdf(file_path)
 
     raise ValueError(f"Unsupported file type: {suffix}")
-
-
-
 
 def load_markdown(file_path: str) -> list[LoadedDocument]:
 
@@ -120,10 +106,6 @@ def load_markdown(file_path: str) -> list[LoadedDocument]:
             )
 
     return blocks
-
-
-
-
 def load_text(file_path: str) -> list[LoadedDocument]:
 
     raw = Path(file_path).read_text(
@@ -142,10 +124,6 @@ def load_text(file_path: str) -> list[LoadedDocument]:
             text=cleaned,
         )
     ]
-
-
-
-
 def load_html(file_path: str) -> list[LoadedDocument]:
 
     raw_html = Path(file_path).read_text(
@@ -212,9 +190,6 @@ def load_html(file_path: str) -> list[LoadedDocument]:
             )
 
     return blocks
-
-
-
 def load_pdf(file_path: str) -> list[LoadedDocument]:
 
     try:

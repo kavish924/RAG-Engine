@@ -38,18 +38,6 @@ Context:
 
 
 def build_context_blocks(chunks: list[dict]) -> str:
-    """
-    Formats retrieved chunks into numbered context blocks.
-
-    Example:
-
-        [1] (source: api_guide.md, section: Authentication)
-        All requests require an API key...
-
-        [2] (source: api_guide.md, section: Rate Limits)
-        The API enforces a limit of 100 requests...
-    """
-
     if not chunks:
         return "(no context retrieved)"
 
@@ -103,10 +91,6 @@ def build_context_blocks(chunks: list[dict]) -> str:
 def build_grounded_prompt(
     chunks: list[dict],
 ) -> str:
-    """
-    Fills the grounded system prompt with retrieved context.
-    """
-
     context_blocks = build_context_blocks(chunks)
 
     return GROUNDED_SYSTEM_PROMPT.format(

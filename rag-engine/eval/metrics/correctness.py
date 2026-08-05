@@ -1,10 +1,3 @@
-"""
-LLM-based correctness metric.
-
-Uses Groq to compare the generated answer against the golden answer.
-
-Returns a normalized score between 0.0 and 1.0.
-"""
 
 import re
 

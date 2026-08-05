@@ -1,8 +1,4 @@
-"""
-GET /v1/documents
-Lists indexed documents with chunk counts and which chunking strategy(ies)
-were used for each — useful for the dashboard and for debugging ingestion.
-"""
+
 from fastapi import APIRouter
 
 from app.api.schemas import DocumentListResponse, DocumentSummary

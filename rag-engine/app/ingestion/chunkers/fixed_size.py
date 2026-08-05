@@ -1,12 +1,3 @@
-"""
-Baseline chunking strategy: fixed-size windows with overlap.
-Simple, fast, no structural awareness — the control group for the
-chunking strategy comparison in Phase 4.
-
-Sizes are measured in characters for simplicity/determinism; swap to a
-tokenizer (tiktoken) if you want token-accurate windows instead.
-"""
-
 
 def chunk_fixed_size(text: str, chunk_size: int = 800, overlap: int = 150) -> list[str]:
     if chunk_size <= 0:

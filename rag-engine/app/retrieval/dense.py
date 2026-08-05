@@ -17,10 +17,6 @@ def _get_vector_store() -> VectorStore:
 
 
 def dense_search(query: str, top_k: int = 10) -> list[dict]:
-    """
-    Returns a list of dicts: {"id", "text", "metadata", "score"}
-    where score is cosine similarity (higher = more relevant).
-    """
     query_embedding = embed_query(query)
     store = _get_vector_store()
     return store.query(query_embedding, top_k=top_k)

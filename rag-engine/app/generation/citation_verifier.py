@@ -1,20 +1,6 @@
-"""
-Citation verifier (Phase 3, step 2).
-
-Verifies generated citations against retrieved source chunks.
-
-Optimized approach:
-- No LLM call
-- No Ollama generation
-- Deterministic local verification
-- Token overlap between citation excerpt and source chunk
-- Preserves the citation response structure expected by the API
-"""
 
 import re
 
-
-# Minimum token overlap required for a citation to be supported.
 CITATION_OVERLAP_THRESHOLD = 0.35
 
 
